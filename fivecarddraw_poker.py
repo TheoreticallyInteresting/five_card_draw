@@ -15,14 +15,34 @@ def create_deck():
 def draw_card(deck):
     return deck.pop() if deck else None
 
+HAND_NAMES = {
+    8: "Straight Flush",
+    7: "Four of a Kind",
+    6: "Full House",
+    5: "Flush",
+    4: "Straight",
+    3: "Three of a Kind",
+    2: "Two Pair",
+    1: "One Pair",
+    0: "High Card"
+    }
 
+def computer_discard(hand):
+    #Returns list of indices, keep pairs
+    values = [CARD_VALUES[r] for r,_ in hand]
+    counts = Counter(values)
+    discard = []
+    for i, (r,_) in enumerate(hand):
+        if counts[CARD_VALUES[r]] == 1:
+                discard.append(i)
+                return discard
 
 def hand_rank(hand):
     values = sorted([CARD_VALUES[r] for r,_ in hand], reverse=True)
     suits = [s for _,s in hand]
     rank_counts = Counter(values)
     counts = sorted(rank_counts.values(), reverse=True)
-    unique = sorted(rank_counts.keys(), revrse=True)
+    unique = sorted(rank_counts.keys(), reverse=True)
     is_flush = len(set(suits)) == 1
     is_straight = len(unique) == 5 and (unique[0] - unique[4] == 4)
 
@@ -55,4 +75,3 @@ def hand_rank(hand):
     
     ## high card
     return (0, *values)
-    
