@@ -69,12 +69,44 @@ def hand_rank(hand):
     # high card
     return (0, *values)
 
-def computer_discard(hand):
-    """Return list of indices to discard, keeps pairs"""
+"""def computer_discard(hand):
+    #Return list of indices to discard, keeps pairs
     values = [CARD_VALUES[r] for r,_ in hand]
     counts = Counter(values)
     discard = []
     for i, (r,_) in enumerate(hand):
         if counts[CARD_VALUES[r]] == 1:
             discard.append(i)
+    return discard"""
+# new computer discard, draw 3 with pair, go for flush/straight with 4 cards, or hold high card and redraw. 
+
+def computer_discard(hand):
+    values = [CARD_VALUES[r] for r,_ in hand]
+    suits = [s for _,s in hand]
+    counts = Counter(values)
+    discard = []
+
+    pairs = [i for i, v in enumerate(values) if counts[v] >=2]
+    if pairs:
+        keep = set(pairs)
+        discard = [i for i in range(5) if i not in keep]
+        return discard
+
+    for suit in SUITS:
+        flush_cards = [i for i, (_, s) in enumerate(hand) if s == suit]
+        if len(flush_cards) >= 4:
+            keep = set(flush_cards)
+            discard = [i for i in range(5) if i not in keep]
+            return discard
+        
+    sorted_values = sorted([(v, i) for i, v in enumerate(values)])
+    for i in range(len(sorted_values)-3):
+        window = sorted_values[i:i+4]
+        if window[3][0] - window[0][0] == 3 and len(set(v for v,_ in window)) == 4:
+            keep = set(idx for _, idx in window)
+            discard = [i for i in range(5) if i not in keep]
+            return discard
+        
+    keep = [i for i, v in enumerate(values) if v >= 11]
+    discard = [i for i in range(5) if i not in keep]
     return discard
